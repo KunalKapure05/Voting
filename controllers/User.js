@@ -3,19 +3,26 @@ const bcrypt = require('bcrypt');
 const { generateToken } = require('../middlewares/jwtAuth');
 
 
+
 exports.getAllUsers = async function(req,res){
-        try {
-            const response = await User.find();
+    try {
+        const response = await User.find();
         console.log("List of Users are : ");
         return res.json(response);
-        } 
-        
-        catch (error) {
-            console.log(err);
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
+    } 
+    
+    catch (error) {
+        console.log(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 }
 
+
+async function hashingPassword(password){
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password,salt)
+    return hashedPassword;
+}
 
 exports.signup = async function(req, res) {
     const data = req.body;
@@ -38,8 +45,7 @@ exports.signup = async function(req, res) {
             return res.status(404).json({ message: "Less than 18 cannot vote" });
         }
 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(data.password, salt);
+        const hashedPassword = await hashingPassword(data.password)
 
         data.password = hashedPassword;
 
@@ -131,8 +137,7 @@ exports.UserPassword= async function(req,res){
             return res.status(404).json({error:"Invalid Current Password"});
         }
         
-        const salt = await bcrypt.genSalt(10)
-        const hashedNewPassword = await bcrypt.hash(newPassword,salt)
+        const hashedNewPassword = await hashingPassword(newPassword)
         user.password = hashedNewPassword;
 
         
