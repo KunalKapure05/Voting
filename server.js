@@ -11,7 +11,10 @@ app.use(bodyParser.json())
 const port = process.env.PORT;
 
 const UserRoutes = require('./routes/UserRoutes');
-app.use('/user',UserRoutes)
+const CandidateRoutes = require('./routes/CandidateRoutes')
+
+app.use('/user',UserRoutes);
+app.use('/candidate',CandidateRoutes);
 
 app.listen(port,()=>{
     console.log("Listening on port no: ",port);

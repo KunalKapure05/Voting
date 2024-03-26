@@ -63,39 +63,39 @@ exports.signup = async function(req, res) {
         res.status(200).json({response , token: token });
 
     } catch (error) {
-        console.log(err);
+        console.log(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
+
+
 
 exports.login = async function(req, res) {
     try {
         const { aadharCardNumber, password } = req.body;
 
+        // Find user by Aadhar card number
         const user = await User.findOne({ aadharCardNumber: aadharCardNumber });
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
 
+        // Compare passwords
         const comparePassword = await bcrypt.compare(password, user.password);
         if (!comparePassword) {
-            return res.status(404).json({ error: "Wrong Password" });
+            return res.status(401).json({ error: "Wrong Password" });
         }
 
-        const payload = {
-            id: user.id
-        };
+        // Generate token
+        const token = generateToken({ id: user.id });
 
-        console.log(JSON.stringify(payload));
-
-        const token = generateToken(payload);
-        console.log("User logged In");
-        return res.status(200).json({"token":token});
+        // Send token in response
+        return res.status(200).json({ token: token });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
-}
+};
 
 exports.profile = async function(req,res){
     try {
